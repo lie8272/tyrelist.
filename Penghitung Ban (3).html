@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Penghitung Ban</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--text:#1c1c1a;--muted:#6b6b66;--line:#e2e0d8;--ink:#1c1c1a;--ink-text:#fff;--danger:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--card:#1f1f1d;--text:#f2f1ec;--muted:#a3a29b;--line:#333330;--ink:#f2f1ec;--ink-text:#141413;--danger:#ff7b6b}}
+:root[data-theme="dark"]{--bg:#141413;--card:#1f1f1d;--text:#f2f1ec;--muted:#a3a29b;--line:#333330;--ink:#f2f1ec;--ink-text:#141413;--danger:#ff7b6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{font-size:24px;margin:8px 0 2px}
+.lang{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+.lang button{border:0;background:var(--card);color:var(--muted);padding:7px 12px;font-size:14px;font-weight:700;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--ink);color:var(--ink-text)}
+.sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.sum .card{text-align:center;padding:12px 6px}
+.tire{flex:none;vertical-align:middle}
+.num{font-size:30px;font-weight:700;line-height:1.1}
+.lbl{font-size:13px;color:var(--muted)}
+.total{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-weight:600}
+label{display:block;font-size:14px;color:var(--muted);margin:0 0 6px}
+input[type=text]{width:100%;padding:12px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
+.add{width:100%;height:44px;margin-top:12px;border:0;border-radius:10px;background:var(--ink);color:var(--ink-text);font-size:16px;font-weight:600;cursor:pointer}
+.err{color:var(--danger);font-size:14px;min-height:20px;margin:8px 0 0}
+h2{font-size:16px;margin:22px 0 10px;display:flex;justify-content:space-between;align-items:center}
+.reset{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer}
+.person{margin-bottom:12px}
+.phead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.phead .who{flex:1;min-width:0;overflow-wrap:anywhere}
+.phead small{color:var(--muted);display:block}
+.trow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.trow .tn{flex:1}
+.mini{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:19px;cursor:pointer}
+.cnt{min-width:26px;text-align:center;font-weight:700;font-size:18px}
+.empty{color:var(--muted);text-align:center;padding:14px 0}
+.rline{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:10px 0;border-top:1px solid var(--line)}
+.rline:first-child{border-top:0}
+.rname{font-weight:700;min-width:72px;overflow-wrap:anywhere}
+.rchip{display:inline-flex;align-items:center;font-weight:600;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 12px 3px 6px}
+.rnone{color:var(--muted);font-size:14px}
+.hbtns{display:flex;gap:16px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.dlg{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:360px;width:100%}
+.dmsg{margin:0 0 16px}
+.drow{display:flex;gap:10px;justify-content:flex-end}
+.dno,.dyes{height:40px;padding:0 18px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:1px solid var(--line)}
+.dno{background:var(--bg);color:var(--text)}
+.dyes{background:var(--ink);color:var(--ink-text);border-color:var(--ink)}
+#saves{margin-top:10px}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.srow .who{flex:1;min-width:0;overflow-wrap:anywhere}
+.srow small{color:var(--muted);display:block}
+.sopen{height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <h1 data-t="title"></h1>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-l="id">ID</button>
+      <button type="button" data-l="en">EN</button>
+    </div>
+  </div>
+  <p class="sub" data-t="sub"></p>
+
+  <div class="sum" id="sum"></div>
+  <div class="total"><span data-t="total"></span><span id="total">0</span></div>
+
+  <div class="card">
+    <label for="name" data-t="nameLbl"></label>
+    <input type="text" id="name" maxlength="40" autocomplete="off">
+    <button type="button" class="add" id="add" data-t="add"></button>
+    <p class="err" id="err"></p>
+  </div>
+
+  <h2><span data-t="savesTitle"></span></h2>
+  <div class="card">
+    <label for="sname" data-t="saveName"></label>
+    <input type="text" id="sname" maxlength="40" autocomplete="off">
+    <button type="button" class="add" id="save" data-t="save"></button>
+    <p class="err" id="nmsg" style="color:var(--muted)"></p>
+    <div id="saves"></div>
+  </div>
+
+  <h2><span data-t="users"></span> <span class="hbtns"><button class="reset" id="reset" type="button" data-t="reset"></button></span></h2>
+  <p class="err" id="smsg" style="color:var(--muted);margin:0 0 8px"></p>
+  <div id="list"></div>
+
+  <h2><span data-t="summary"></span> <span class="hbtns"><button class="reset" id="pdf" type="button" data-t="pdf"></button><button class="reset" id="jpg" type="button" data-t="jpg"></button><button class="reset" id="copy" type="button" data-t="copy"></button></span></h2>
+  <div class="card" id="rekap"></div>
+  <p class="err" id="cmsg" style="color:var(--muted)"></p>
+</main>
+
+<script>
+var T={
+ id:{title:"Penghitung Ban",sub:"Atur ban Hard, Medium, dan Soft untuk tiap pemakai. Satu orang boleh memakai ban yang berbeda.",total:"Total ban",nameLbl:"Nama pemakai",ph:"Contoh: Budi",add:"Tambah orang",users:"Daftar pemakai",reset:"Hapus semua",summary:"Daftar ringkas",copy:"Salin",empty:"Belum ada pemakai. Tambahkan nama di atas.",needName:"Isi nama pemakai dulu.",dup:"Nama itu sudah ada di daftar.",delQ:"Hapus {name}?",delAllQ:"Hapus semua data?",noData:"Belum ada data.",noTires:"belum ada ban",copied:"Tersalin.",copyFail:"Gagal menyalin.",less:"Kurangi",more:"Tambah",del:"Hapus",pdf:"Ekspor PDF",pdfTitle:"Daftar Ringkas Ban",pdfFile:"ringkasan-ban.pdf",pdfDone:"PDF tersimpan.",pdfFail:"Gagal membuat PDF.",jpg:"Ekspor JPG",jpgFile:"ringkasan-ban.jpg",jpgDone:"JPG tersimpan.",jpgFail:"Gagal membuat JPG.",dlNA:"Ekspor belum tersedia di tampilan ini. Buka web lewat claude.ai.",savesTitle:"Data tersimpan",saveName:"Nama data",savePh:"Contoh: Balapan 1",needSName:"Isi nama data dulu.",savedAs:"Data “{name}” tersimpan.",opened:"Data “{name}” dibuka.",overQ:"Data “{name}” sudah ada. Timpa?",openQ:"Buka “{name}”? Data yang sedang tampil akan diganti.",delSaveQ:"Hapus data tersimpan “{name}”?",open:"Buka",noSaves:"Belum ada data tersimpan.",cancel:"Batal",ok:"Ya",save:"Simpan data",saving:"Menyimpan…",saved:"Tersimpan di akunmu.",savedLocal:"Tersimpan di browser ini.",saveFail:"Gagal menyimpan."},
+ en:{title:"Tire Counter",sub:"Set Hard, Medium, and Soft tires for each user. One person can use different tires.",total:"Total tires",nameLbl:"User name",ph:"Example: Budi",add:"Add person",users:"Users",reset:"Clear all",summary:"Summary",copy:"Copy",empty:"No users yet. Add a name above.",needName:"Enter a name first.",dup:"That name is already in the list.",delQ:"Delete {name}?",delAllQ:"Clear all data?",noData:"No data yet.",noTires:"no tires yet",copied:"Copied.",copyFail:"Copy failed.",less:"Decrease",more:"Increase",del:"Delete",pdf:"Export PDF",pdfTitle:"Tire Summary",pdfFile:"tire-summary.pdf",pdfDone:"PDF saved.",pdfFail:"Failed to create PDF.",jpg:"Export JPG",jpgFile:"tire-summary.jpg",jpgDone:"JPG saved.",jpgFail:"Failed to create JPG.",dlNA:"Export is not available in this view. Open the page in claude.ai.",savesTitle:"Saved data",saveName:"Data name",savePh:"Example: Race 1",needSName:"Enter a data name first.",savedAs:"“{name}” saved.",opened:"“{name}” opened.",overQ:"“{name}” already exists. Overwrite?",openQ:"Open “{name}”? The data on screen will be replaced.",delSaveQ:"Delete saved data “{name}”?",open:"Open",noSaves:"No saved data yet.",cancel:"Cancel",ok:"Yes",save:"Save data",saving:"Saving…",saved:"Saved to your account.",savedLocal:"Saved in this browser.",saveFail:"Could not save."}
+};
+var LANG="id";
+try{
+  var sl=localStorage.getItem("penghitung-ban-lang");
+  if(sl==="id"||sl==="en"){LANG=sl}
+  else if(navigator.language&&navigator.language.slice(0,2)!=="id"){LANG="en"}
+}catch(e){}
+function t(k,v){var s=T[LANG][k];if(v)for(var x in v)s=s.replace("{"+x+"}",v[x]);return s}
+function tiresTxt(n){return LANG==="en"?n+(n===1?" tire":" tires"):n+" ban"}
+
+var TYPES={hard:{n:"Hard",c:"#ffffff"},medium:{n:"Medium",c:"#ffd21f"},soft:{n:"Soft",c:"#ff2d2d"}};
+var KEYS=Object.keys(TYPES);
+var people=[];
+function find(name){return people.filter(function(p){return p.name.toLowerCase()===name.toLowerCase()})[0]}
+try{
+  var v=localStorage.getItem("penghitung-ban-v2");
+  if(v){people=JSON.parse(v)}
+  else{
+    JSON.parse(localStorage.getItem("penghitung-ban")||"[]").forEach(function(it){
+      var p=find(it.name);
+      if(!p){p={name:it.name,c:{hard:0,medium:0,soft:0}};people.push(p)}
+      p.c[it.type]+=it.qty;
+    });
+  }
+}catch(e){people=[]}
+function save(){
+  var ok=true;
+  try{localStorage.setItem("penghitung-ban-v2",JSON.stringify(people))}catch(e){ok=false}
+  if(CLOUD){setStatus("saving");clearTimeout(timer);timer=setTimeout(pushCloud,500)}
+  else{setStatus(ok?"savedLocal":"saveFail")}
+}
+function el(tg,cls,txt){var e=document.createElement(tg);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+function dot(k,s){
+  s=s||26;
+  var NS="http://www.w3.org/2000/svg",col=TYPES[k].c;
+  var svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox","0 0 100 100");svg.setAttribute("width",s);svg.setAttribute("height",s);
+  svg.setAttribute("class","tire");svg.setAttribute("aria-hidden","true");
+  if(s>30){svg.style.display="block";svg.style.margin="0 auto 4px"}else{svg.style.marginRight="8px"}
+  function add(tg,a){var e=document.createElementNS(NS,tg);for(var i in a)e.setAttribute(i,a[i]);svg.appendChild(e)}
+  add("circle",{cx:50,cy:50,r:48,fill:"#2b2b2b",stroke:"#7a7a7a","stroke-width":2});
+  add("path",{d:"M33.1 18.2A36 36 0 0 0 33.1 81.8",fill:"none",stroke:col,"stroke-width":8});
+  add("path",{d:"M66.9 18.2A36 36 0 0 1 66.9 81.8",fill:"none",stroke:col,"stroke-width":8});
+  add("circle",{cx:50,cy:50,r:25,fill:"#8c8c8c"});
+  for(var n=0;n<8;n++){var g=n*Math.PI/4;add("line",{x1:50+7*Math.cos(g),y1:50+7*Math.sin(g),x2:50+19*Math.cos(g),y2:50+19*Math.sin(g),stroke:"#fff","stroke-width":4})}
+  add("circle",{cx:50,cy:50,r:7,fill:"#fff"});
+  return svg;
+}
+function sumOf(p){return KEYS.reduce(function(a,k){return a+p.c[k]},0)}
+function lines(){
+  return people.map(function(p){
+    var s=KEYS.filter(function(k){return p.c[k]>0}).map(function(k){return TYPES[k].n+" "+p.c[k]+"x"}).join(" ");
+    return p.name+(s?" "+s:" ("+t("noTires")+")");
+  });
+}
+function rekap(){
+  var box=document.getElementById("rekap");box.innerHTML="";
+  if(!people.length){box.appendChild(el("div","empty",t("noData")));return}
+  people.forEach(function(p){
+    var r=el("div","rline");
+    r.appendChild(el("span","rname",p.name));
+    var used=KEYS.filter(function(k){return p.c[k]>0});
+    if(!used.length){r.appendChild(el("span","rnone",t("noTires")))}
+    used.forEach(function(k){
+      var chip=el("span","rchip");
+      chip.appendChild(dot(k,22));
+      chip.appendChild(document.createTextNode(TYPES[k].n+" "+p.c[k]+"x"));
+      r.appendChild(chip);
+    });
+    box.appendChild(r);
+  });
+}
+function render(){
+  rekap();
+  var sum=document.getElementById("sum");sum.innerHTML="";
+  var all=0;
+  KEYS.forEach(function(k){
+    var n=people.reduce(function(a,p){return a+p.c[k]},0);
+    all+=n;
+    var c=el("div","card");
+    c.appendChild(dot(k,44));c.appendChild(el("div","num",n));
+    c.appendChild(el("div","lbl",TYPES[k].n));
+    sum.appendChild(c);
+  });
+  document.getElementById("total").textContent=all;
+
+  var list=document.getElementById("list");list.innerHTML="";
+  if(!people.length){var e=el("div","card");e.appendChild(el("div","empty",t("empty")));list.appendChild(e);return}
+  people.forEach(function(p){
+    var card=el("div","card person");
+    var h=el("div","phead");
+    var w=el("div","who");w.appendChild(el("b","",p.name));w.appendChild(el("small","",tiresTxt(sumOf(p))));
+    var d=el("button","mini","×");d.type="button";d.setAttribute("aria-label",t("del")+" "+p.name);
+    d.onclick=function(){
+      var go=function(){people=people.filter(function(x){return x!==p});save();render()};if(sumOf(p)===0){go()}else{ask(t("delQ",{name:p.name}),go)}
+    };
+    h.appendChild(w);h.appendChild(d);card.appendChild(h);
+    KEYS.forEach(function(k){
+      var r=el("div","trow");
+      r.appendChild(dot(k));
+      r.appendChild(el("span","tn",TYPES[k].n));
+      var m=el("button","mini","−");m.type="button";m.setAttribute("aria-label",t("less")+" "+TYPES[k].n);
+      m.onclick=function(){if(p.c[k]>0){p.c[k]--;save();render()}};
+      var q=el("span","cnt",p.c[k]);
+      var a=el("button","mini","+");a.type="button";a.setAttribute("aria-label",t("more")+" "+TYPES[k].n);
+      a.onclick=function(){p.c[k]++;save();render()};
+      r.appendChild(m);r.appendChild(q);r.appendChild(a);
+      card.appendChild(r);
+    });
+    list.appendChild(card);
+  });
+}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=t("title");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"),function(e){e.textContent=t(e.getAttribute("data-t"))});
+  document.getElementById("name").placeholder=t("ph");
+  document.getElementById("sname").placeholder=t("savePh");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-l]"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-l")===LANG)});
+  document.getElementById("err").textContent="";setStatus(SK);renderSaves();
+  document.getElementById("cmsg").textContent="";
+  render();
+}
+Array.prototype.forEach.call(document.querySelectorAll("[data-l]"),function(b){
+  b.onclick=function(){LANG=b.getAttribute("data-l");try{localStorage.setItem("penghitung-ban-lang",LANG)}catch(e){}applyLang()};
+});
+document.getElementById("add").onclick=function(){
+  var inp=document.getElementById("name"),err=document.getElementById("err");
+  var name=inp.value.trim();
+  if(!name){err.textContent=t("needName");inp.focus();return}
+  if(find(name)){err.textContent=t("dup");return}
+  err.textContent="";
+  people.push({name:name,c:{hard:0,medium:0,soft:0}});
+  inp.value="";save();render();
+};
+document.getElementById("name").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("add").click()});
+document.getElementById("reset").onclick=function(){
+  if(people.length){ask(t("delAllQ"),function(){people=[];save();render()})}
+};
+document.getElementById("copy").onclick=function(){
+  var tx=lines().join("\n"),m=document.getElementById("cmsg");
+  if(!tx){m.textContent=t("noData");return}
+  function ok(){m.textContent=t("copied")}
+  function fb(){
+    var ta=document.createElement("textarea");ta.value=tx;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");ok()}catch(e){m.textContent=t("copyFail")}
+    document.body.removeChild(ta);
+  }
+  try{navigator.clipboard.writeText(tx).then(ok,fb)}catch(e){fb()}
+};
+function iconPng(k){
+  return new Promise(function(res,rej){
+    var s=new XMLSerializer().serializeToString(dot(k,150));
+    var img=new Image();
+    img.onload=function(){var c=document.createElement("canvas");c.width=150;c.height=150;c.getContext("2d").drawImage(img,0,0,150,150);res(c.toDataURL("image/png"))};
+    img.onerror=rej;
+    img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s);
+  });
+}
+async function exportPdf(){
+  var m=document.getElementById("cmsg");
+  if(!people.length){m.textContent=t("noData");return}
+  await getDL();
+  if(!DL){m.textContent=t("dlNA");return}
+  if(!window.jspdf){m.textContent=t("pdfFail");return}
+  try{
+    var icons={};
+    for(var i=0;i<KEYS.length;i++){icons[KEYS[i]]=await iconPng(KEYS[i])}
+    var doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+    var M=18,W=210,y=22,no=0;
+    doc.setFont("helvetica","bold");doc.setFontSize(20);doc.setTextColor(30);doc.text("Tyre List",M,y);
+    y+=6;doc.setDrawColor(210);doc.line(M,y,W-M,y);y+=11;
+    people.forEach(function(p){
+      if(y>280){doc.addPage();y=22}no++;
+      doc.setFont("helvetica","bold");doc.setFontSize(12);doc.setTextColor(30);
+      doc.text(String(no),M,y);doc.text(doc.splitTextToSize(p.name,40)[0],M+10,y);
+      var cx=M+56,used=KEYS.filter(function(k){return p.c[k]>0});
+      doc.setFont("helvetica","normal");
+      if(!used.length){doc.setTextColor(130);doc.text(t("noTires"),cx,y)}
+      used.forEach(function(k){
+        var s=TYPES[k].n+" "+p.c[k]+"x";
+        doc.addImage(icons[k],"PNG",cx,y-5.5,7,7);doc.setTextColor(30);doc.text(s,cx+9,y);cx+=9+doc.getTextWidth(s)+7;
+      });
+      y+=7;doc.setDrawColor(235);doc.line(M,y,W-M,y);y+=8;
+    });
+    await DL.save({filename:t("pdfFile"),data:doc.output("blob")});
+    m.textContent=t("pdfDone");
+  }catch(e){m.textContent=(e&&e.code==="declined")?"":t("pdfFail")}
+}
+function iconImg(k){
+  return new Promise(function(res,rej){
+    var s=new XMLSerializer().serializeToString(dot(k,150));
+    var img=new Image();
+    img.onload=function(){res(img)};
+    img.onerror=rej;
+    img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s);
+  });
+}
+async function exportJpg(){
+  var m=document.getElementById("cmsg");
+  if(!people.length){m.textContent=t("noData");return}
+  await getDL();
+  if(!DL){m.textContent=t("dlNA");return}
+  try{
+    var S=2,PAD=40,RH=64,TOP=76,WD=1000,F="system-ui,-apple-system,Arial,sans-serif";
+    var imgs={};
+    for(var i=0;i<KEYS.length;i++){imgs[KEYS[i]]=await iconImg(KEYS[i])}
+    var H=PAD*2+TOP+people.length*RH;
+    var c=document.createElement("canvas");
+    c.width=WD*S;c.height=H*S;
+    var g=c.getContext("2d");g.scale(S,S);
+    g.fillStyle="#ffffff";g.fillRect(0,0,WD,H);
+    g.textBaseline="middle";
+    g.fillStyle="#1c1c1a";g.font="700 34px "+F;g.fillText("Tyre List",PAD,PAD+18);
+    g.strokeStyle="#cfcdc4";g.lineWidth=1.5;g.beginPath();g.moveTo(PAD,PAD+TOP-14);g.lineTo(WD-PAD,PAD+TOP-14);g.stroke();
+    people.forEach(function(p,n){
+      var cy=PAD+TOP+n*RH+RH/2;
+      g.fillStyle="#1c1c1a";g.font="700 24px "+F;
+      var nm=p.name;
+      while(nm.length>1&&g.measureText(nm).width>170){nm=nm.slice(0,-1)}
+      if(nm!==p.name)nm+="…";
+      g.fillText(String(n+1),PAD,cy);g.fillText(nm,PAD+50,cy);
+      var x=PAD+250,used=KEYS.filter(function(k){return p.c[k]>0});
+      g.font="600 22px "+F;
+      if(!used.length){g.fillStyle="#8a8a85";g.fillText(t("noTires"),x,cy)}
+      used.forEach(function(k){
+        var s=TYPES[k].n+" "+p.c[k]+"x";
+        g.drawImage(imgs[k],x,cy-20,40,40);
+        g.fillStyle="#1c1c1a";g.fillText(s,x+50,cy);
+        x+=50+g.measureText(s).width+28;
+      });
+      if(n<people.length-1){g.strokeStyle="#e6e4dc";g.lineWidth=1;g.beginPath();g.moveTo(PAD,PAD+TOP+(n+1)*RH);g.lineTo(WD-PAD,PAD+TOP+(n+1)*RH);g.stroke()}
+    });
+    var blob=await new Promise(function(r){c.toBlob(r,"image/jpeg",0.92)});
+    await DL.save({filename:t("jpgFile"),data:blob});
+    m.textContent=t("jpgDone");
+  }catch(e){m.textContent=(e&&e.code==="declined")?"":t("jpgFail")}
+}
+var CLOUD=null,timer=null,syncing=false,dirty=false,SK="";
+function setStatus(k){SK=k;document.getElementById("smsg").textContent=k?t(k):""}
+async function pushCloud(){
+  if(!CLOUD)return;
+  if(syncing){dirty=true;return}
+  syncing=true;
+  try{
+    do{dirty=false;await CLOUD.set({people:JSON.parse(JSON.stringify(people))})}while(dirty);
+    setStatus("saved");
+  }catch(e){
+    if(e&&e.code==="invalid_argument"){CLOUD=null;setStatus("savedLocal")}else{setStatus("saveFail")}
+  }
+  syncing=false;
+}
+async function initCloud(){
+  try{
+    if(!(window.claude&&window.claude.use))return;
+    var db=await window.claude.use("db"),user=await window.claude.use("user");
+    if(!db||!user)return;
+    var uid=await user.id();
+    if(!uid)return;
+    var ref=db.doc("data/users/"+uid+"/penghitung-ban");
+    var snap=await ref.get();
+    var d=snap.exists?snap.data():null;
+    CLOUD=ref;SREF=db.doc("data/users/"+uid+"/penghitung-saves");await loadCloudSaves();
+    if(d&&Array.isArray(d.people)){
+      people=JSON.parse(JSON.stringify(d.people));
+      try{localStorage.setItem("penghitung-ban-v2",JSON.stringify(people))}catch(e){}
+      render();
+    }else if(people.length){await pushCloud()}
+  }catch(e){}
+}
+var SAVES=[],SREF=null;
+function loadLocalSaves(){try{SAVES=JSON.parse(localStorage.getItem("penghitung-ban-saves")||"[]")}catch(e){SAVES=[]}}
+async function persistSaves(){
+  try{localStorage.setItem("penghitung-ban-saves",JSON.stringify(SAVES))}catch(e){}
+  if(SREF){try{await SREF.set({items:JSON.parse(JSON.stringify(SAVES))})}catch(e){}}
+}
+async function loadCloudSaves(){
+  try{
+    var ss=await SREF.get(),sd=ss.exists?ss.data():null;
+    if(sd&&Array.isArray(sd.items)){
+      SAVES=JSON.parse(JSON.stringify(sd.items));
+      try{localStorage.setItem("penghitung-ban-saves",JSON.stringify(SAVES))}catch(e){}
+      renderSaves();
+    }else if(SAVES.length){await persistSaves()}
+  }catch(e){SREF=null}
+}
+function peopleTxt(n){return LANG==="en"?n+(n===1?" person":" people"):n+" orang"}
+function openSave(s){
+  if(people.length){ask(t("openQ",{name:s.name}),function(){doOpen(s)})}else{doOpen(s)}
+}
+function doOpen(s){
+  people=JSON.parse(JSON.stringify(s.people));
+  document.getElementById("sname").value=s.name;
+  save();render();
+  document.getElementById("nmsg").textContent=t("opened",{name:s.name});
+}
+function renderSaves(){
+  var box=document.getElementById("saves");box.innerHTML="";
+  if(!SAVES.length){box.appendChild(el("div","empty",t("noSaves")));return}
+  SAVES.forEach(function(s){
+    var r=el("div","srow");
+    var w=el("div","who");w.appendChild(el("b","",s.name));w.appendChild(el("small","",peopleTxt(s.people.length)));
+    var o=el("button","sopen",t("open"));o.type="button";
+    o.onclick=function(){openSave(s)};
+    var d=el("button","mini","×");d.type="button";d.setAttribute("aria-label",t("del")+" "+s.name);
+    d.onclick=function(){
+      ask(t("delSaveQ",{name:s.name}),function(){SAVES=SAVES.filter(function(x){return x!==s});persistSaves();renderSaves()})
+    };
+    r.appendChild(w);r.appendChild(o);r.appendChild(d);box.appendChild(r);
+  });
+}
+function ask(msg,onYes){
+  var ov=el("div","ov"),box=el("div","dlg"),row=el("div","drow");
+  box.setAttribute("role","alertdialog");
+  box.appendChild(el("p","dmsg",msg));
+  var no=el("button","dno",t("cancel")),yes=el("button","dyes",t("ok"));
+  no.type="button";yes.type="button";
+  function close(){if(ov.parentNode)ov.parentNode.removeChild(ov)}
+  no.onclick=close;
+  yes.onclick=function(){close();onYes()};
+  ov.onclick=function(e){if(e.target===ov)close()};
+  row.appendChild(no);row.appendChild(yes);box.appendChild(row);ov.appendChild(box);
+  document.body.appendChild(ov);yes.focus();
+}
+var DL=null;
+function getDL(){
+  if(DL)return Promise.resolve(DL);
+  try{
+    if(window.claude&&window.claude.use){
+      return window.claude.use("downloads").then(function(d){DL=d;return d},function(){return null});
+    }
+  }catch(e){}
+  return Promise.resolve(null);
+}
+try{if(window.claude&&window.claude.use){window.claude.use("downloads").then(function(d){DL=d;if(d){document.getElementById("pdf").hidden=false;document.getElementById("jpg").hidden=false}},function(){})}}catch(e){}
+document.getElementById("pdf").onclick=exportPdf;
+document.getElementById("jpg").onclick=exportJpg;
+document.getElementById("save").onclick=function(){
+  var inp=document.getElementById("sname"),nm=document.getElementById("nmsg");
+  var name=inp.value.trim();
+  if(!name){nm.textContent=t("needSName");inp.focus();return}
+  var ex=SAVES.filter(function(s){return s.name.toLowerCase()===name.toLowerCase()})[0];
+  var go=function(){
+    var data=JSON.parse(JSON.stringify(people));
+    if(ex){ex.people=data;ex.name=name}else{SAVES.push({id:"s"+Date.now(),name:name,people:data})}
+    persistSaves();renderSaves();
+    nm.textContent=t("savedAs",{name:name});
+  };
+  if(ex){ask(t("overQ",{name:ex.name}),go)}else{go()}
+};
+loadLocalSaves();
+initCloud();
+applyLang();
+</script>
+</body>
+</html>
